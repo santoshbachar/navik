@@ -1,19 +1,19 @@
 package main
 
 import (
-	"context"
-
-	"navik.com/m/v1/dockerDriver"
+	"navik.com/m/v1/yaml"
 )
 
 func main() {
-	ctx := context.Background()
+	// ctx := context.Background()
 
-	cli := dockerDriver.Connect(ctx)
+	// cli := dockerDriver.Connect(ctx)
 
-	count := dockerDriver.ListContainers(ctx, cli)
-	if count == 0 {
-		dockerDriver.StartContainerFromExistingImage(ctx, cli, "hello-world", "")
-	}
+	// count := dockerDriver.ListContainers(ctx, cli)
+	// if count == 0 {
+	// 	dockerDriver.StartContainerFromExistingImage(ctx, cli, "hello-world", "")
+	// }
+
+	yaml.LoadConfig()
 
 }
