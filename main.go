@@ -1,9 +1,5 @@
 package main
 
-import (
-	"navik.com/m/v1/yaml"
-)
-
 func main() {
 	// ctx := context.Background()
 
@@ -14,6 +10,20 @@ func main() {
 	// 	dockerDriver.StartContainerFromExistingImage(ctx, cli, "hello-world", "")
 	// }
 
-	yaml.LoadConfig()
+	// yaml.LoadConfig()
+
+	var forwardPorts [2]string
+	forwardPorts[0] = "9001"
+	forwardPorts[1] = "9002"
+
+	var listeningPorts [2]string
+	listeningPorts[0] = "2002"
+	// listeningPorts[1] = "1003"
+
+	for _, listen := range listeningPorts {
+
+		proxy.Start(listen, forwardPorts[:])
+
+	}
 
 }
