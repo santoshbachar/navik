@@ -9,7 +9,13 @@ import (
 	"sync"
 )
 
+type bearing struct {
+	addr string
+	port string
+}
 type Proxy struct {
+	
+	Bearing bearing
 	mu    sync.Mutex
 	proxy *httputil.ReverseProxy
 }
@@ -29,7 +35,7 @@ func (p *Proxy) Start(listen string, ports []string) {
 			req.URL.Host = origin.Host
 		}
 
-		p = p.proxy{Director: director}
+		p+.proxy{Director: director}
 
 		// handleURI := "/" + port + "/"
 	}
