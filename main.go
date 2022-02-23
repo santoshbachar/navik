@@ -1,5 +1,10 @@
 package main
 
+import (
+	"fmt"
+	"github.com/santoshbachar/navik/proxy"
+)
+
 func main() {
 	// ctx := context.Background()
 
@@ -18,12 +23,21 @@ func main() {
 
 	var listeningPorts [2]string
 	listeningPorts[0] = "2002"
-	// listeningPorts[1] = "1003"
+	listeningPorts[1] = "2003"
 
-	for _, listen := range listeningPorts {
+	var proxies []proxy.Proxy
 
-		proxy.Start(listen, forwardPorts[:])
+	for k, listen := range listeningPorts {
+
+		fmt.Println("enter listeningPorts on", listen)
+		proxy := proxy.Proxy{Bearing: proxy.Bearing{Addr: "localhost", Port: forwardPorts[k]}, ListeningPort: listen}
+		proxies = append(proxies, proxy)
+		fmt.Println("Start on", proxy.Bearing)
+
+		go proxy.Start(k)
 
 	}
+
+	fmt.Scanln()
 
 }

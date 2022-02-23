@@ -1,4 +1,4 @@
-module navik.com/m/v1
+module github.com/santoshbachar/navik
 
 go 1.17
 
