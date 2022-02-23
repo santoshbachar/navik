@@ -33,7 +33,13 @@ func (p *Proxy) Start(instance int) {
 		req.URL.Host = origin.Host
 	}
 
+	p.mu.Lock()
 	p.ReverseProxy = &httputil.ReverseProxy{Director: director}
+	p.mu.Unlock()
+
+	if p.ReverseProxy == nil {
+		panic("Nil Reverse Proxy")
+	}
 
 	handleURI := "/" + string(instance) + "/"
 	http.HandleFunc(handleURI, func(w http.ResponseWriter, r *http.Request) {
@@ -43,4 +49,10 @@ func (p *Proxy) Start(instance int) {
 
 	listeningPort := ":" + p.ListeningPort
 	log.Fatalln(http.ListenAndServe(listeningPort, nil))
+	fmt.Println("line after ListenAndServe")
+}
+
+func (p *Proxy) Check() bool {
+
+	return false
 }
