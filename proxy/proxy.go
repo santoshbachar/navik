@@ -7,6 +7,7 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"sync"
+	"os"
 )
 
 type Bearing struct {
@@ -20,7 +21,7 @@ type Proxy struct {
 	ReverseProxy  *httputil.ReverseProxy
 }
 
-func (p *Proxy) Start(instance int) {
+func (p *Proxy) Start(instance int, signal chan os.Signal) {
 
 	uri := "http://localhost:" + p.Bearing.Port + "/"
 
@@ -48,11 +49,18 @@ func (p *Proxy) Start(instance int) {
 	})
 
 	listeningPort := ":" + p.ListeningPort
-	log.Fatalln(http.ListenAndServe(listeningPort, nil))
+	go log.Fatalln(http.ListenAndServe(listeningPort, nil))
+	<- signal
 	fmt.Println("line after ListenAndServe")
 }
 
 func (p *Proxy) Check() bool {
 
 	return false
+}
+
+func Shutdown() {
+	req := http.Request{}
+	req.Header.Add("NAVIK-SIGNAL", "0")
+	req.URL.Scheme = "http"
 }
