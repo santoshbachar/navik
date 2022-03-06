@@ -1,0 +1,29 @@
+---
+
+infrasturcture:
+  vendors:
+    gcloud:
+      instances:
+        - name: default
+          projectId: someid
+          zone: europe
+          instanceName: nil
+          machineType: n1-standard-1
+          sourceImage: path/file
+          networkName: global/networks/default
+    aws:
+      instances:
+          - name: default
+            projectId: nil
+            zone: nil
+            instanceName: nil
+            machineType: nil
+            sourceImage: nil
+            networkName: nil
+          - name: some_other_i_am_not_going_to_use
+            projectId: nil
+            zone: nil
+            instanceName: nil
+            machineType: nil
+            sourceImage: nil
+            networkName: nil
