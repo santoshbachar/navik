@@ -2,6 +2,8 @@ package containers
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/santoshbachar/navik/bash"
 )
 
@@ -14,8 +16,11 @@ type Container struct {
 }
 
 func (c *Container) Start(name string, args string, min, max int) bool {
-	//_, err := bash.Command("docker", "run "+args+" "+name)
-	_, err := bash.Command("ls", "")
+	finalArgs := "run " + args + " name"
+	var argsSlice = strings.Fields(finalArgs)
+	_, err := bash.Command("docker", argsSlice)
+	// _, err := bash.Command("ls", "-la")
+	// _, err := bash.Command("docker", "run")
 
 	if err != nil {
 		fmt.Println("err ->", err)

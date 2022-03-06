@@ -1,16 +1,14 @@
-
-
 driver: docker
 using: API,CMD
 common_args: --detach --rm
-port_pool_range: 8090:8100
+port_pool_range: 9000:9010
 containers:
-  - name: mongo
+  - name: demo
     state:
       min: 1
       max: 10
     args:
-      - -p 8090:27017
+      - -p 9001:8080
 #      - -v /home/santoshbachar:/home
 #      - -v /home/santoshbachar/navik:/home/lib
 #      - --log-driver=fluentd
