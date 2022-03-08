@@ -1,30 +1,34 @@
-package containers
+package router
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/santoshbachar/navik/bash"
+	"github.com/santoshbachar/navik/proxy"
 )
 
 type Container struct {
-	Name      string
+	Image     string
 	Min       int
 	Max       int
 	Instances int
-	//ProxyPool []proxy.ProxyPool
+	ProxyPool []proxy.ProxyPool
 }
 
 func (c *Container) Start(name string, args string, min, max int) bool {
-	finalArgs := "run " + args + " name"
-	var argsSlice = strings.Fields(finalArgs)
-	_, err := bash.Command("docker", argsSlice)
-	// _, err := bash.Command("ls", "-la")
-	// _, err := bash.Command("docker", "run")
+	for i := 0; i < max; i++ {
+		finalArgs := "run " + args + " " + name + " --name " + name + "-" + strconv.Itoa(i+1)
+		var argsSlice = strings.Fields(finalArgs)
+		_, err := bash.Command("docker", argsSlice)
+		// _, err := bash.Command("ls", "-la")
+		// _, err := bash.Command("docker", "run")
 
-	if err != nil {
-		fmt.Println("err ->", err)
-		return false
+		if err != nil {
+			fmt.Println("err ->", err)
+			return false
+		}
 	}
 
 	return true

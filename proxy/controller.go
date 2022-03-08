@@ -1,9 +1,10 @@
 package proxy
 
 import (
-	"github.com/santoshbachar/navik/proxy"
 	"os"
 	"os/signal"
+
+	"github.com/docker/go-connections/proxy"
 )
 
 type ReverseProxyController struct {
@@ -13,6 +14,10 @@ type ReverseProxyController struct {
 
 func (rpc *ReverseProxyController) Shutdown() {
 	signal.Notify(rpc.Signal, os.Kill)
+}
+
+func (rpc *ReverseProxyController) Start() {
+
 }
 
 type ProxyPool struct {

@@ -3,7 +3,7 @@ using: API,CMD
 common_args: --detach --rm
 port_pool_range: 9000:9010
 containers:
-  - name: demo
+  - image: demo
     state:
       min: 1
       max: 10

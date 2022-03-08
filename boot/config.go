@@ -2,14 +2,16 @@ package boot
 
 import (
 	"fmt"
-	"github.com/santoshbachar/navik/constants"
-	"github.com/santoshbachar/navik/containers"
-	"gopkg.in/yaml.v2"
 	"net"
 	"os"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/santoshbachar/navik/constants"
+	"github.com/santoshbachar/navik/proxy"
+	"github.com/santoshbachar/navik/router"
+	"gopkg.in/yaml.v2"
 )
 
 type Config struct {
@@ -18,7 +20,7 @@ type Config struct {
 	CommonArgs    string `yaml:"common_args"`
 	PortPoolRange string `yaml:"port_pool_range"`
 	Containers    []struct {
-		Name  string `yaml:"name"`
+		Image string `yaml:"image"`
 		State struct {
 			Min int `yaml:"min"`
 			Max int `yaml:"max"`
@@ -27,9 +29,9 @@ type Config struct {
 	} `yaml:"containers"`
 }
 
-var globalcontainers []containers.Container
+var routers []router.Container
 
-func Containers() {
+func Bootstrap() {
 	var config Config
 
 	dat, err := os.ReadFile(constants.ResourceDir + "navik.containers.yaml")
@@ -52,7 +54,7 @@ func Containers() {
 
 		available_port, ok := getNextAvailablePort(current_port, pool_max)
 		if !ok {
-			panic("not enough port left in the pool to start the container " + container.Name)
+			panic("not enough port left in the pool to start the container " + container.Image)
 		}
 
 		fmt.Println("available port", available_port)
@@ -64,13 +66,23 @@ func Containers() {
 		docker_args = config.CommonArgs + docker_args
 		fmt.Println("docker_args", docker_args)
 
-		c := containers.Container{}
-		ok = c.Start(container.Name, docker_args, container.State.Min, container.State.Max)
+		r := router.Container{}
+		ok = r.Start(container.Image, docker_args, container.State.Min, container.State.Max)
 		if !ok {
 			panic("some port is occupied for no reason. try again")
 		}
 
-		globalcontainers = append(globalcontainers, c)
+		for i := 0; i < container.State.Max; i++ {
+			available_port, ok = getNextAvailablePort(current_port, pool_max)
+			if !ok {
+				panic("not enough port left in the pool to start the container " + container.Image)
+			}
+
+			p := proxy.ReverseProxyController{}
+			p.Start()
+		}
+
+		routers = append(routers, r)
 	}
 
 }

@@ -1,7 +1,6 @@
 package main
 
 import (
-
 	"github.com/santoshbachar/navik/boot"
 	//"github.com/santoshbachar/navik/infrastructure"
 	//"github.com/santoshbachar/navik/proxy"
@@ -20,7 +19,7 @@ func main() {
 
 	// yaml.LoadConfig()
 
-	boot.Containers()
+	boot.Bootstrap()
 
 	return
 	//infrastructure.Provision()
