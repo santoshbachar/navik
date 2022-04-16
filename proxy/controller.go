@@ -4,11 +4,10 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/docker/go-connections/proxy"
 )
 
 type ReverseProxyController struct {
-	Proxy  proxy.Proxy
+	Proxy  Proxy
 	Signal chan os.Signal
 }
 
@@ -17,7 +16,6 @@ func (rpc *ReverseProxyController) Shutdown() {
 }
 
 func (rpc *ReverseProxyController) Start() {
-
 }
 
 type ProxyPool struct {

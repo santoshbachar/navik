@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/santoshbachar/navik/boot"
+	"os"
 	//"github.com/santoshbachar/navik/infrastructure"
 	//"github.com/santoshbachar/navik/proxy"
 	//"github.com/santoshbachar/navik/containers"
@@ -19,7 +20,10 @@ func main() {
 
 	// yaml.LoadConfig()
 
-	boot.Bootstrap()
+	//boot.Bootstrap()
+
+	boot.Start(make(chan os.Signal))
+
 
 	return
 	//infrastructure.Provision()
