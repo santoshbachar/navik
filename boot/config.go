@@ -202,6 +202,11 @@ func getPortsFromArgsIfArgsNeedToBeReplaced(args *[]string) (bool, int, int) {
 	return false, 0, 0
 }
 
+func (c Config) GetArgs(image string) []string{
+	c.Containers[image]
+	return c.
+}
+
 func getPortsFromArgs(args *[]string) (bool, int, int) {
 	for _, v := range *args {
 		firstTwo := v[:2]

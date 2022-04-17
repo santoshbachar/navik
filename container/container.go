@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/santoshbachar/navik/bash"
 	"github.com/santoshbachar/navik/dockerDriver"
 	"github.com/santoshbachar/navik/proxy"
 )
@@ -39,6 +40,10 @@ func (i *Info) AddId(id string) {
 }
 
 func Start(name string, args string) (string, bool) {
+	finalArgs := "run " + args + " " + name + " --name " + name
+	var argsSlice = strings.Fields(finalArgs)
+	_, err := bash.Command("docker", argsSlice)
+
 	id, ok := dockerDriver.MockSearchContainer(name)
 	// might be a good idea to pass this on first go
 	if !ok {

@@ -2,13 +2,14 @@ package boot
 
 import (
 	"fmt"
-	"github.com/santoshbachar/navik/container"
-	"github.com/santoshbachar/navik/router"
 	"net/http"
 	"os"
 	"strconv"
 	_ "sync"
 	"time"
+
+	"github.com/santoshbachar/navik/container"
+	"github.com/santoshbachar/navik/router"
 )
 
 type cPair struct {
@@ -88,7 +89,7 @@ func spinContainers(routerMap *map[string]router.Config) {
 			if !ok {
 				panic("No more ports available to continue, Exiting Navik")
 			}
-			id, ok := container.Start(imageName, "some args")
+			id, ok := container.Start(imageName, c.GetArgs(imageName))
 
 			if !ok {
 				fmt.Println("Unable to start container. Might handle this in monitoring")
