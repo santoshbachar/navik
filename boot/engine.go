@@ -37,13 +37,13 @@ func Start(signal chan os.Signal) {
 
 	fmt.Println("RouterMap after spinContainers ", RouterMap)
 
-	for {
-		time.Sleep(1 * time.Second)
-		// some wg group magic would be good if at all possible
-		// or, I think both these should run as goroutine with for{}
-		go monitorContainers()
-		go monitorPorts()
-	}
+	//for {
+
+	// some wg group magic would be good if at all possible
+	// or, I think both these should run as goroutine with for{}
+	go monitorContainers()
+	go monitorPorts()
+	//}
 
 	<-signal
 
@@ -52,8 +52,11 @@ func Start(signal chan os.Signal) {
 }
 
 func monitorContainers() {
-	for _, name := range ContainerNameMonitorList {
-		fmt.Println("checking for activity, container name", name)
+	for {
+		time.Sleep(1 * time.Second)
+		for _, name := range ContainerNameMonitorList {
+			fmt.Println("checking for activity, container name", name)
+		}
 	}
 }
 
@@ -63,9 +66,11 @@ func addPortToMonitorList(port int) {
 }
 
 func monitorPorts() {
-	time.Sleep(5 * time.Second)
-	for _, port := range ContainerPortMonitorList {
-		fmt.Println("checking for activity, port", port)
+	for {
+		time.Sleep(5 * time.Second)
+		for _, port := range ContainerPortMonitorList {
+			fmt.Println("checking for activity, port", port)
+		}
 	}
 }
 
