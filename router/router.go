@@ -72,8 +72,8 @@ func (c *Config) getPointerToContainer(index int) *container.Info {
 	return c.routes[index].ptr
 }
 
-func GetInitialConfig(p1, p2, maintain int, args []string) Config {
-	return Config{p1, p2, maintain, args, nil, sync.Mutex{}, make(chan os.Signal, 1)}
+func GetInitialConfig(p1, p2, maintain int, args []string) *Config {
+	return &Config{p1, p2, maintain, args, nil, sync.Mutex{}, make(chan os.Signal, 1)}
 }
 
 func (c *Config) ModifyRoutes(newRoutes []string) {
@@ -96,11 +96,15 @@ func getNextCounter(max int) int {
 	return counterToReturn
 }
 
-func getNewDirector(routes *[]cPair) httputil.ReverseProxy {
+func getNewDirector(routes *[]cPair) *httputil.ReverseProxy {
 	director := func(req *http.Request) {
+		req.Header.Add("X-Forwarded-Host", req.Host)
+
 		req.URL.Scheme = "http"
 		c := getNextCounter(len(*routes))
-		req.URL.Host = (*routes)[c].addr
+
+		req.URL.Host = "localhost:" + (*routes)[c].addr
+		req.Header.Add("X-Origin-Host", req.URL.Host)
 
 		fmt.Println("Inside director function")
 		fmt.Println("c=", c)
@@ -108,15 +112,15 @@ func getNewDirector(routes *[]cPair) httputil.ReverseProxy {
 	}
 	fmt.Println("Director is set")
 
-	return httputil.ReverseProxy{Director: director}
+	return &httputil.ReverseProxy{Director: director}
 }
 
-func (c Config) Stop() {
+func (c *Config) Stop() {
 	//signal.Notify(c.stopSignal, os.Interrupt)
 	c.stopSignal <- os.Interrupt
 }
 
-func (conf Config) Spin(i int, serverMux *http.ServeMux) {
+func (conf *Config) Spin(i int, serverMux *http.ServeMux) {
 	//director := func(req *http.Request) {
 	//	req.URL.Scheme = "http"
 	//}
@@ -126,11 +130,12 @@ func (conf Config) Spin(i int, serverMux *http.ServeMux) {
 	fmt.Println("Spin() i = ", i)
 	fmt.Println("conf", conf)
 
-	serverMux.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
+	(*serverMux).HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
 		//proxy := getNewDirector(director)
 		conf.mu.Lock()
 		proxy := getNewDirector(&conf.routes)
 		fmt.Println("/ proxy", proxy)
+		fmt.Println("request is ", request)
 		conf.mu.Unlock()
 
 		proxy.ServeHTTP(writer, request)
@@ -143,12 +148,12 @@ func (conf Config) Spin(i int, serverMux *http.ServeMux) {
 		fmt.Println("Server with conf ", conf, "is exiting")
 
 		if err := srv.Shutdown(context.Background()); err != nil {
-			log.Println("HTTP server(proxy) Shutdown: %v", err)
+			log.Printf("HTTP server(proxy) Shutdown: %v", err)
 		}
 	}()
 
 	if err := srv.ListenAndServe(); err != http.ErrServerClosed {
-		log.Fatalln("HTTP server(proxy) ListenAndServe: %v", err)
+		log.Fatalf("HTTP server(proxy) ListenAndServe: %v", err)
 	}
 
 }

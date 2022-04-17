@@ -32,23 +32,23 @@ type Config struct {
 
 //var routers []container.Container
 
-func PreFlightCheck(config *Config) (map[string]router.Config, bool) {
+func PreFlightCheck(config *Config, routerMap *map[string]*router.Config) bool {
 	// might need to add check for docker avialability later
 	requiredPorts := 0
-	routeMap := make(map[string]router.Config)
+	// routeMap := make(map[string]*router.Config)
 	for _, container := range config.Containers {
 		ok, p1, p2 := getPortsFromArgs(&container.Args)
 		if !ok {
 			fmt.Println("your image `" + container.Image + "` is missing ports")
-			return nil, false
+			return false
 		}
 		fmt.Println(p1, p2)
 		portok := isPortAvailable(p1)
 		if !portok {
 			fmt.Println("your image with port `" + strconv.Itoa(p1) + "` is not available")
-			return nil, false
+			return false
 		}
-		routeMap[container.Image] = router.GetInitialConfig(p1, p2, container.State.Min, container.Args)
+		(*routerMap)[container.Image] = router.GetInitialConfig(p1, p2, container.State.Min, container.Args)
 		//routeMap[container.Image] = router.Config{p1, p2, container.State.Min}
 		requiredPorts += container.State.Min
 	}
@@ -58,23 +58,23 @@ func PreFlightCheck(config *Config) (map[string]router.Config, bool) {
 	p1, p2, ok := getColonItems(config.PortPoolRange)
 	if !ok {
 		fmt.Println("invalid port-pool")
-		return nil, false
+		return false
 	}
 
 	actual := getAvailablePortCount(p1, p2)
 	fmt.Println("Available ports in system ", actual)
 	if actual < requiredPorts*2 {
 		fmt.Println("There's not enough ports to continue")
-		return nil, false
+		return false
 	}
 
-	return routeMap, true
+	return true
 }
 
-func Boot(routeMap *map[string]router.Config, portManager *router.PortManager) {
+func Boot(routeMap *map[string]*router.Config, portManager *router.PortManager) {
 	var config Config
 
-	*routeMap = Bootstrap(&config)
+	Bootstrap(&config, routeMap)
 	fmt.Println("Bootstrap is done. Unpacking")
 
 	LoadPortManager(portManager, &config)
@@ -91,7 +91,7 @@ func LoadPortManager(pm *router.PortManager, config *Config) {
 	fmt.Println("Port Manager initialized", pm)
 }
 
-func LoadRouterMap(routeMap *map[string]router.Config, config *Config) {
+func LoadRouterMap(routeMap *map[string]*router.Config, config *Config) {
 	for _, container := range config.Containers {
 		//p1, p2 :=
 		//routeMap[container.Image] =
@@ -100,7 +100,7 @@ func LoadRouterMap(routeMap *map[string]router.Config, config *Config) {
 	}
 }
 
-func Bootstrap(config *Config) map[string]router.Config {
+func Bootstrap(config *Config, routeMap *map[string]*router.Config) {
 
 	dat, err := os.ReadFile(constants.ResourceDir + "navik.containers.yaml")
 	if err != nil {
@@ -112,17 +112,19 @@ func Bootstrap(config *Config) map[string]router.Config {
 		panic(err)
 	}
 
-	routeMap, ok := PreFlightCheck(config)
+	ok := PreFlightCheck(config, routeMap)
 	if !ok {
 		panic("Pre Flight Check failed. Check stacktrace for more info.")
 	}
 
+	// routeMap, ok := PreFlightCheck(config)
+	// if !ok {
+	// 	panic("Pre Flight Check failed. Check stacktrace for more info.")
+	// }
+
 	//for _, container := range config.Containers {
 	//	PreFlightCheck(&container.Args)
 	//}
-
-	return routeMap
-
 }
 
 //func BootStrapAdvanced(config *Config) {

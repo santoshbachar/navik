@@ -21,12 +21,14 @@ type cPair struct {
 // would be great if I could have used slice since all the images and containers
 // needed is already known in advance, but then we can't give users the ability
 // to dynaically reload configs at runtime
-var RouterMap map[string]router.Config
+var RouterMap map[string]*router.Config
 var PortManager router.PortManager
 var ContainerPortMonitorList []string
 var ContainerNameMonitorList []string
 
 func Start(signal chan os.Signal) {
+
+	RouterMap = make(map[string]*router.Config)
 
 	Boot(&RouterMap, &PortManager)
 
@@ -75,7 +77,7 @@ func monitorPorts() {
 	}
 }
 
-func spinContainers(routerMap *map[string]router.Config) {
+func spinContainers(routerMap *map[string]*router.Config) {
 
 	fmt.Println("Enter spinContainers pm is ", PortManager)
 
@@ -138,7 +140,7 @@ func addNameToMonitorList(name string) {
 	ContainerNameMonitorList = append(ContainerNameMonitorList, name)
 }
 
-func spinRouters(routerMap *map[string]router.Config) {
+func spinRouters(routerMap *map[string]*router.Config) {
 	//mu := sync.Mutex{}
 	i := 1
 	fmt.Println("spinning len - ", len(RouterMap))
