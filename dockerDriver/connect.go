@@ -27,14 +27,15 @@ func ListContainers(ctx context.Context, cli *client.Client) int {
 	return len(containers)
 }
 
-func SearchContainer(name string) (string, bool) {
+func SearchContainer(ctx context.Context, name string) (string, bool) {
+	cli := Connect(ctx)
 	containers, err := cli.ContainerList(ctx, types.ContainerListOptions{})
 	if err != nil {
 		panic(err)
 	}
 
 	for _, container := range containers {
-		if container.Name == name {
+		if container.Image == name {
 			return container.ID, true
 		}
 	}

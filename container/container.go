@@ -1,14 +1,15 @@
 package container
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/santoshbachar/navik/bash"
-	"github.com/santoshbachar/navik/proxy"
 	"github.com/santoshbachar/navik/dockerDriver"
+	"github.com/santoshbachar/navik/proxy"
 )
 
 type ContainerOld struct {
@@ -55,7 +56,7 @@ func Start(name string, args string) (string, bool) {
 	//	return "", false
 	//}
 	//id, ok := getContainerIdByName(name)
-	id, ok := dockerDriver.SearchContainer(name)
+	id, ok := dockerDriver.SearchContainer(context.Background(), name)
 	if !ok {
 		fmt.Println("Container", name, "started but unable to detect afterwards, returning.")
 		return "", false
