@@ -23,6 +23,7 @@ type Config struct {
 	portIn  int // not to be taken into consideration in v1
 	// now, this has to be considered as hostport:port
 	maintain int
+	containerArgs []string
 	routes   []cPair // hoping not to use this technique
 	//Routes []string
 	mu         sync.Mutex
@@ -43,6 +44,10 @@ func (c *Config) GetTotalRoutes() int {
 	return len(c.routes)
 }
 
+func (c *Config) GetContainerAddr(index int) string{
+	return (*c.GetRoutes())[index].addr
+}
+
 func (c *Config) GetMinimumContainers() int {
 	return c.maintain
 }
@@ -59,8 +64,8 @@ func (c *Config) getPointerToContainer(index int) *container.Info {
 	return c.routes[index].ptr
 }
 
-func GetInitialConfig(p1, p2, maintain int) Config {
-	return Config{p1, p2, maintain, nil, sync.Mutex{}, make(chan os.Signal, 1)}
+func GetInitialConfig(p1, p2, maintain int, args []string) Config {
+	return Config{p1, p2, maintain, args, nil, sync.Mutex{}, make(chan os.Signal, 1)}
 }
 
 func (c *Config) ModifyRoutes(newRoutes []string) {

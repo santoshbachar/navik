@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/santoshbachar/navik/bash"
-	"github.com/santoshbachar/navik/dockerDriver"
 	"github.com/santoshbachar/navik/proxy"
+	"github.com/santoshbachar/navik/dockerDriver"
 )
 
 type ContainerOld struct {
@@ -43,15 +43,40 @@ func Start(name string, args string) (string, bool) {
 	finalArgs := "run " + args + " " + name + " --name " + name
 	var argsSlice = strings.Fields(finalArgs)
 	_, err := bash.Command("docker", argsSlice)
-
-	id, ok := dockerDriver.MockSearchContainer(name)
-	// might be a good idea to pass this on first go
-	if !ok {
-		fmt.Println("something is wrong with docker.")
+	if err != nil {
+		fmt.Println("docker run error")
 		return "", false
 	}
 
+	//id, ok := dockerDriver.MockSearchContainer(name)
+	//// might be a good idea to pass this on first go
+	//if !ok {
+	//	fmt.Println("something is wrong with docker.")
+	//	return "", false
+	//}
+	//id, ok := getContainerIdByName(name)
+	id, ok := dockerDriver.SearchContainer(name)
+	if !ok {
+		fmt.Println("Container", name, "started but unable to detect afterwards, returning.")
+		return "", false
+	}
+	//return id, true
 	return id, true
+}
+
+func getContainerIdByName(name string) (string, bool) {
+	args := []string{
+		"ps",
+		"|",
+		"grep",
+		name,
+	}
+	_, err := bash.Command("docker", args)
+	if err != nil {
+		fmt.Println("Panic: getContainerIdByName() failed to get Name")
+		return "", false
+	}
+	return "something temprary for now", true
 }
 
 func (c *ContainerOld) Start(name string, args string, min, max int) bool {

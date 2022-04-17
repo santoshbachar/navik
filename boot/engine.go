@@ -89,7 +89,8 @@ func spinContainers(routerMap *map[string]router.Config) {
 			if !ok {
 				panic("No more ports available to continue, Exiting Navik")
 			}
-			id, ok := container.Start(imageName, c.GetArgs(imageName))
+			args := c.GetContainerAddr(i)
+			id, ok := container.Start(imageName, args)
 
 			if !ok {
 				fmt.Println("Unable to start container. Might handle this in monitoring")

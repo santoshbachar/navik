@@ -48,7 +48,7 @@ func PreFlightCheck(config *Config) (map[string]router.Config, bool) {
 			fmt.Println("your image with port `" + strconv.Itoa(p1) + "` is not available")
 			return nil, false
 		}
-		routeMap[container.Image] = router.GetInitialConfig(p1, p2, container.State.Min)
+		routeMap[container.Image] = router.GetInitialConfig(p1, p2, container.State.Min, container.Args)
 		//routeMap[container.Image] = router.Config{p1, p2, container.State.Min}
 		requiredPorts += container.State.Min
 	}
@@ -200,11 +200,6 @@ func getPortsFromArgsIfArgsNeedToBeReplaced(args *[]string) (bool, int, int) {
 		}
 	}
 	return false, 0, 0
-}
-
-func (c Config) GetArgs(image string) []string{
-	c.Containers[image]
-	return c.
 }
 
 func getPortsFromArgs(args *[]string) (bool, int, int) {
