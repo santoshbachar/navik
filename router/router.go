@@ -85,11 +85,15 @@ func getCurrentCounter() int {
 }
 
 func getNextCounter(max int) int {
-	counter++
+	fmt.Println("Someone is asking for counter")
+
 	if counter >= max {
-		counter = 1
+		counter = 0
 	}
-	return counter
+	fmt.Println("going to return ", counter)
+	counterToReturn := counter
+	counter++
+	return counterToReturn
 }
 
 func getNewDirector(routes *[]cPair) httputil.ReverseProxy {
@@ -97,7 +101,13 @@ func getNewDirector(routes *[]cPair) httputil.ReverseProxy {
 		req.URL.Scheme = "http"
 		c := getNextCounter(len(*routes))
 		req.URL.Host = (*routes)[c].addr
+
+		fmt.Println("Inside director function")
+		fmt.Println("c=", c)
+		fmt.Println("req.URL.Host=", req.URL.Host)
 	}
+	fmt.Println("Director is set")
+
 	return httputil.ReverseProxy{Director: director}
 }
 
@@ -120,6 +130,7 @@ func (conf Config) Spin(i int, serverMux *http.ServeMux) {
 		//proxy := getNewDirector(director)
 		conf.mu.Lock()
 		proxy := getNewDirector(&conf.routes)
+		fmt.Println("/ proxy", proxy)
 		conf.mu.Unlock()
 
 		proxy.ServeHTTP(writer, request)

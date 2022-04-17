@@ -42,8 +42,8 @@ func Start(signal chan os.Signal) {
 
 	// some wg group magic would be good if at all possible
 	// or, I think both these should run as goroutine with for{}
-	go monitorContainers()
-	go monitorPorts()
+	// go monitorContainers()
+	// go monitorPorts()
 	//}
 
 	<-signal
