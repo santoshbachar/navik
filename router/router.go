@@ -3,7 +3,6 @@ package router
 import (
 	"context"
 	"fmt"
-	"github.com/santoshbachar/navik/container"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -11,6 +10,8 @@ import (
 	_ "os/signal"
 	"strconv"
 	"sync"
+
+	"github.com/santoshbachar/navik/container"
 )
 
 type cPair struct {
@@ -22,9 +23,9 @@ type Config struct {
 	portOut int // main port described in -p
 	portIn  int // not to be taken into consideration in v1
 	// now, this has to be considered as hostport:port
-	maintain int
+	maintain      int
 	containerArgs []string
-	routes   []cPair // hoping not to use this technique
+	routes        []cPair // hoping not to use this technique
 	//Routes []string
 	mu         sync.Mutex
 	stopSignal chan os.Signal
@@ -44,8 +45,15 @@ func (c *Config) GetTotalRoutes() int {
 	return len(c.routes)
 }
 
-func (c *Config) GetContainerAddr(index int) string{
-	return (*c.GetRoutes())[index].addr
+func (c *Config) GetContainerAddr(index int) string {
+	fmt.Println("c", c)
+	fmt.Println("GetContainerAddr", c.routes[index].addr)
+	// return (*c.GetRoutes())[index].addr
+	return c.routes[index].addr
+}
+
+func (c *Config) GetContainerArgs() *[]string {
+	return &c.containerArgs
 }
 
 func (c *Config) GetMinimumContainers() int {

@@ -13,16 +13,16 @@ containers:
 #      - -v /home/santoshbachar/navik:/home/lib
 #      - --log-driver=fluentd
 
-  - image: demo2
-    state:
-      min: 1
-      max: 10
-    args:
-      - -p 9002:8080
+# - image: demo2
+#   state:
+#     min: 1
+#     max: 10
+#   args:
+#     - -p 9002:8080
 
-  - image: demo3
-    state:
-      min: 2
-      max: 10
-    args:
-      - -p 9003:8080
+# - image: demo3
+#   state:
+#     min: 2
+#     max: 10
+#   args:
+#     - -p 9003:8080

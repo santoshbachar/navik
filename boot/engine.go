@@ -84,13 +84,23 @@ func spinContainers(routerMap *map[string]router.Config) {
 		fmt.Println("c ", c)
 
 		for i := 0; i < c.GetMinimumContainers(); i++ {
-			imageName := image + "-" + strconv.Itoa(i)
+			instanceName := image + "-" + strconv.Itoa(i)
 			port, ok := PortManager.GetNextAvailablePort()
 			if !ok {
 				panic("No more ports available to continue, Exiting Navik")
 			}
-			args := c.GetContainerAddr(i)
-			id, ok := container.Start(imageName, args)
+			// cannot be used now.
+			// 1. docker run
+			// 2. then, add it to router.Config
+			// args := c.GetContainerAddr(i)
+			cArgs := c.GetContainerArgs()
+			ok = replacePortOutFromArgs(cArgs, port)
+			if !ok {
+				fmt.Println("oh no, port error when about to run conatiner")
+				continue
+			}
+			finalArgs := container.PrepareStart("--detach --rm", cArgs)
+			id, ok := container.Start(image, instanceName, finalArgs)
 
 			if !ok {
 				fmt.Println("Unable to start container. Might handle this in monitoring")
@@ -101,7 +111,7 @@ func spinContainers(routerMap *map[string]router.Config) {
 			(*routerMap)[image] = c
 			fmt.Println("InitialRouteInfo added", c)
 			addPortToMonitorList(port)
-			addNameToMonitorList(imageName)
+			addNameToMonitorList(instanceName)
 		}
 
 		fmt.Println("routes -> ", c.GetRoutes())
@@ -143,11 +153,11 @@ func spinRouters(routerMap *map[string]router.Config) {
 		//mu.Unlock()
 	}
 
-	goalsConf := (*routerMap)["demo"]
-	fmt.Println("goalsConf", goalsConf)
-	goalsConf.Stop()
-
-	fmt.Println("demoConf stop")
+	// in linux, commenting them
+	// goalsConf := (*routerMap)["demo"]
+	// fmt.Println("goalsConf", goalsConf)
+	// goalsConf.Stop()
+	// fmt.Println("demoConf stop")
 
 	//c := make(chan bool)
 	//for i := 0; i < 3; i++ {

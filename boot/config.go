@@ -189,19 +189,6 @@ func getPortsFromArgsIfArgsWereOne(args string) (bool, int, int) {
 	return true, one, two
 }
 
-func getPortsFromArgsIfArgsNeedToBeReplaced(args *[]string) (bool, int, int) {
-	for i, v := range *args {
-		firstTwo := v[:2]
-		var ports string
-		if firstTwo == "-p" {
-			ports = strings.TrimSpace(v[2:])
-			(*args)[i] = "-p " + getHostPort(ports)
-			fmt.Println(ports)
-		}
-	}
-	return false, 0, 0
-}
-
 func getPortsFromArgs(args *[]string) (bool, int, int) {
 	for _, v := range *args {
 		firstTwo := v[:2]

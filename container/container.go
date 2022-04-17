@@ -40,8 +40,16 @@ func (i *Info) AddId(id string) {
 	RegisterLive(i)
 }
 
-func Start(name string, args string) (string, bool) {
-	finalArgs := "run " + args + " " + name + " --name " + name
+func PrepareStart(argsN string, argsAP *[]string) string {
+	result := argsN
+	for _, arg := range *argsAP {
+		result = result + " " + arg
+	}
+	return result
+}
+
+func Start(image string, instanceName string, args string) (string, bool) {
+	finalArgs := "run " + args + " " + image + " --name " + instanceName
 	var argsSlice = strings.Fields(finalArgs)
 	_, err := bash.Command("docker", argsSlice)
 	if err != nil {
@@ -56,9 +64,9 @@ func Start(name string, args string) (string, bool) {
 	//	return "", false
 	//}
 	//id, ok := getContainerIdByName(name)
-	id, ok := dockerDriver.SearchContainer(context.Background(), name)
+	id, ok := dockerDriver.SearchContainer(context.Background(), image)
 	if !ok {
-		fmt.Println("Container", name, "started but unable to detect afterwards, returning.")
+		fmt.Println("Container", image, "started but unable to detect afterwards, returning.")
 		return "", false
 	}
 	//return id, true
