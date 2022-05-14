@@ -1,8 +1,10 @@
 package main
 
 import (
-	"github.com/santoshbachar/navik/boot"
 	"os"
+
+	"github.com/santoshbachar/navik/boot"
+	"github.com/santoshbachar/navik/ear"
 	//"github.com/santoshbachar/navik/infrastructure"
 	//"github.com/santoshbachar/navik/proxy"
 	//"github.com/santoshbachar/navik/containers"
@@ -22,8 +24,9 @@ func main() {
 
 	//boot.Bootstrap()
 
-	boot.Start(make(chan os.Signal))
+	go ear.Eavesdrop()
 
+	boot.Start(make(chan os.Signal))
 
 	return
 	//infrastructure.Provision()

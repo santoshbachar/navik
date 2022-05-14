@@ -18,13 +18,23 @@ func Connect(ctx context.Context) *client.Client {
 	return cli
 }
 
-func ListContainers(ctx context.Context, cli *client.Client) int {
+func GetContainerCountWithNewClient(ctx context.Context) int {
+	cli := Connect(ctx)
+	return len(ListContainers(ctx, cli))
+}
+
+func ListContainersWithNewClient(ctx context.Context) []types.Container {
+	cli := Connect(ctx)
+	return ListContainers(ctx, cli)
+}
+
+func ListContainers(ctx context.Context, cli *client.Client) []types.Container {
 	containers, err := cli.ContainerList(ctx, types.ContainerListOptions{})
 	if err != nil {
 		panic(err)
 	}
 
-	return len(containers)
+	return containers
 }
 
 func SearchContainer(ctx context.Context, name string) (string, bool) {

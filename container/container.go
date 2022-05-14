@@ -49,7 +49,7 @@ func PrepareStart(argsN string, argsAP *[]string) string {
 }
 
 func Start(image string, instanceName string, args string) (string, bool) {
-	finalArgs := "run " + args + " " + image + " --name " + instanceName
+	finalArgs := "run " + args + " --name " + instanceName + " " + image
 	var argsSlice = strings.Fields(finalArgs)
 	_, err := bash.Command("docker", argsSlice)
 	if err != nil {

@@ -54,6 +54,14 @@ func Start(signal chan os.Signal) {
 
 }
 
+func GetRouterMap() map[string]*router.Config {
+	return RouterMap
+}
+
+func GetMonitorLists() ([]string, []string) {
+	return ContainerNameMonitorList, ContainerPortMonitorList
+}
+
 func monitorContainers() {
 	for {
 		time.Sleep(1 * time.Second)
