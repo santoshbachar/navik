@@ -112,6 +112,8 @@ func Bootstrap(config *Config, routeMap *map[string]*router.Config) {
 		panic(err)
 	}
 
+	constants.SetCommonArgs(config.CommonArgs)
+
 	ok := PreFlightCheck(config, routeMap)
 	if !ok {
 		panic("Pre Flight Check failed. Check stacktrace for more info.")
@@ -239,7 +241,8 @@ func getNextAvailablePort(start_port, end_port int) (int, bool) {
 		timeout := time.Second
 		conn, err := net.DialTimeout("tcp", net.JoinHostPort("localhost", strconv.Itoa(port)), timeout)
 		if err != nil {
-			fmt.Println("Error conneting", port)
+			fmt.Println("Error conneting, ignoring and continuing", port)
+			continue
 		}
 		if conn != nil {
 			defer conn.Close()

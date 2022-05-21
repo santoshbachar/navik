@@ -1,0 +1,31 @@
+driver: docker
+using: API,CMD
+common_args: --detach --rm
+port_pool_range: 9000:9010
+startup:
+  health_check: true # actuator, other libs
+  sequence: chronological
+containers:
+  - image: demo
+    state:
+      min: 5
+      max: 10
+    args:
+      - -p 9001:8080
+#      - -v /home/santoshbachar:/home
+#      - -v /home/santoshbachar/navik:/home/lib
+#      - --log-driver=fluentd
+
+# - image: demo2
+#   state:
+#     min: 1
+#     max: 10
+#   args:
+#     - -p 9002:8080
+
+# - image: demo3
+#   state:
+#     min: 2
+#     max: 10
+#   args:
+#     - -p 9003:8080

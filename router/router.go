@@ -56,6 +56,14 @@ func (c *Config) GetContainerArgs() *[]string {
 	return &c.containerArgs
 }
 
+func (c *Config) AddMaintain(count int) {
+	c.maintain += count
+}
+
+func (c *Config) RemoveMaintain(count int) {
+	c.maintain -= count
+}
+
 func (c *Config) GetMinimumContainers() int {
 	return c.maintain
 }

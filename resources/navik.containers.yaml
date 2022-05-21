@@ -5,7 +5,7 @@ port_pool_range: 9000:9010
 containers:
   - image: demo
     state:
-      min: 2
+      min: 5
       max: 10
     args:
       - -p 9001:8080

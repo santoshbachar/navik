@@ -29,19 +29,23 @@ func AuxBootstrap(routerMap map[string]*router.Config) bool {
 			fmt.Println(proposedContainer.Image + " is intact")
 		} else {
 			if proposedMin > currentMin {
-				add(proposedMin - currentMin)
+				add(proposedContainer.Image, proposedMin-currentMin, currentMin)
 			} else {
-				reduce(currentMin - proposedMin)
+				reduce(proposedContainer.Image, currentMin-proposedMin)
 			}
 		}
 	}
 	return true
 }
 
-func add(count int) {
+func add(image string, count int, current int) {
 	fmt.Println("yaml changed, adding " + strconv.Itoa(count) + " new routers, containers")
+	AddMaintain(image, count)
+	AddContainer(image, count, current)
 }
 
-func reduce(count int) {
+func reduce(image string, count int) {
 	fmt.Println("yaml changed, reducing " + strconv.Itoa(count) + " existing routers, containers")
+	RemoveMaintain(image, count)
+	RemoveContainer(image, count)
 }

@@ -27,6 +27,10 @@ func Eavesdrop() {
 		fmt.Fprintln(w, resp)
 	})
 
+	http.HandleFunc("/stop/router/", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintln(w, "this feature is still under development")
+	})
+
 	http.HandleFunc("/status", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Status queried from Navik-Cli")
 		resp := guard.GetOverallStatus()

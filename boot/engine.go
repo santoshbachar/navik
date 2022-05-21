@@ -8,6 +8,7 @@ import (
 	_ "sync"
 	"time"
 
+	"github.com/santoshbachar/navik/constants"
 	"github.com/santoshbachar/navik/container"
 	"github.com/santoshbachar/navik/router"
 )
@@ -109,7 +110,7 @@ func spinContainers(routerMap *map[string]*router.Config) {
 				fmt.Println("oh no, port error when about to run conatiner")
 				continue
 			}
-			finalArgs := container.PrepareStart("--detach --rm", cArgs)
+			finalArgs := container.PrepareStart(constants.GetCommonArgs(), cArgs)
 			id, ok := container.Start(image, instanceName, finalArgs)
 
 			if !ok {
@@ -178,4 +179,65 @@ func spinRouters(routerMap *map[string]*router.Config) {
 	//	time.Sleep(5 * time.Second)
 	//	c <- true
 	//}
+}
+
+func AddMaintain(image string, count int) {
+	// not required as director does the job once even a single instance is running
+	// for i := 0; i < count; i++ {
+	// 	serverMux := http.NewServeMux()
+	// 	RouterMap[image].Spin(i, serverMux)
+	// }
+	RouterMap[image].AddMaintain(count)
+}
+
+func RemoveMaintain(image string, count int) {
+	// not required as director does the job once even a single instance is running
+	// for i := 0; i < count; i++ {
+	// 	serverMux := http.NewServeMux()
+	// 	RouterMap[image].Spin(i, serverMux)
+	// }
+	RouterMap[image].RemoveMaintain(count)
+}
+
+func AddContainer(image string, count int, current int) {
+	for i := 0; i < count; i++ {
+		num := i + current
+		instanceName := image + "-" + strconv.Itoa(num)
+		port, ok := PortManager.GetNextAvailablePort()
+		if !ok {
+			panic("No more ports available to continue, Exiting Navik")
+		}
+		// cannot be used now.
+		// 1. docker run
+		// 2. then, add it to router.Config
+		// args := c.GetContainerAddr(i)
+		c := RouterMap[image]
+		cArgs := c.GetContainerArgs()
+		ok = replacePortOutFromArgs(cArgs, port)
+		if !ok {
+			fmt.Println("oh no, port error when about to run conatiner")
+			continue
+		}
+		finalArgs := container.PrepareStart(constants.GetCommonArgs(), cArgs)
+		id, ok := container.Start(image, instanceName, finalArgs)
+
+		if !ok {
+			fmt.Println("Unable to start container. Might handle this in monitoring")
+		}
+
+		c.AddInitialRouteInfo(i, port, id)
+		// this needs to changed, need map[string]*router.Config
+		// commented for this function, copied from SpinContainers()
+		// (*routerMap)[image] = c
+		fmt.Println("InitialRouteInfo added", c)
+		addPortToMonitorList(port)
+		addNameToMonitorList(instanceName)
+	}
+}
+
+func RemoveContainer(image string, count int) {
+	c := RouterMap[image]
+	for i := 0; i < count; i++ {
+		c.Stop()
+	}
 }
