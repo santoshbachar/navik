@@ -5,6 +5,7 @@ port_pool_range: 9000:9010
 startup:
   health_check: true # actuator, other libs
   sequence: chronological
+  tag: spring_app
 containers:
   - image: demo
     state:
@@ -12,20 +13,19 @@ containers:
       max: 10
     args:
       - -p 9001:8080
-#      - -v /home/santoshbachar:/home
-#      - -v /home/santoshbachar/navik:/home/lib
-#      - --log-driver=fluentd
+    #      - -v /home/santoshbachar:/home
+    #      - -v /home/santoshbachar/navik:/home/lib
+    #      - --log-driver=fluentd
+    tags:
+      - spring_app
 
-# - image: demo2
-#   state:
-#     min: 1
-#     max: 10
-#   args:
-#     - -p 9002:8080
+- image: demo2
+  state:
+    min: 1
+    max: 10
+  args:
+    - -p 9002:8080
+    - -my_own_custom_args=i_am_awesome
+  no_follow:
+      - common_args
 
-# - image: demo3
-#   state:
-#     min: 2
-#     max: 10
-#   args:
-#     - -p 9003:8080
