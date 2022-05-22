@@ -8,6 +8,7 @@ import (
 	_ "sync"
 	"time"
 
+	"github.com/fatih/color"
 	"github.com/santoshbachar/navik/constants"
 	"github.com/santoshbachar/navik/container"
 	"github.com/santoshbachar/navik/router"
@@ -115,6 +116,19 @@ func spinContainers(routerMap *map[string]*router.Config) {
 
 			if !ok {
 				fmt.Println("Unable to start container. Might handle this in monitoring")
+			}
+
+			color.Green("docker container get started.")
+
+			counter := 0
+			for {
+				counter++
+				color.Yellow("waiting for " + image + " #" + strconv.Itoa(i) + " to start")
+				up := container.IsUp(c.GetHost(), port)
+				if up {
+					break
+				}
+				time.Sleep(time.Second * 1)
 			}
 
 			c.AddInitialRouteInfo(i, port, id)

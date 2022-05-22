@@ -56,6 +56,14 @@ func (c *Config) GetContainerArgs() *[]string {
 	return &c.containerArgs
 }
 
+func (c *Config) GetPortOut() int {
+	return c.portOut
+}
+
+func (c *Config) GetHost() string {
+	return "localhost"
+}
+
 func (c *Config) AddMaintain(count int) {
 	c.maintain += count
 }

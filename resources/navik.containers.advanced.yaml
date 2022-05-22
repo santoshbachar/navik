@@ -14,7 +14,6 @@ containers:
     args:
       - -p 9001:8080
     #      - -v /home/santoshbachar:/home
-    #      - -v /home/santoshbachar/navik:/home/lib
     #      - --log-driver=fluentd
     tags:
       - spring_app
