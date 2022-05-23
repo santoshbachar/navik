@@ -121,14 +121,12 @@ func spinContainers(routerMap *map[string]*router.Config) {
 			color.Green("docker container get started.")
 
 			counter := 0
-			for {
+			up := false
+			for !up {
 				counter++
 				color.Yellow("waiting for " + image + " #" + strconv.Itoa(i) + " to start")
-				up := container.IsUp(c.GetHost(), port)
-				if up {
-					break
-				}
-				time.Sleep(time.Second * 1)
+				up = container.IsUp(c.GetHost(), port)
+				time.Sleep(time.Second * 5)
 			}
 
 			c.AddInitialRouteInfo(i, port, id)
@@ -137,6 +135,9 @@ func spinContainers(routerMap *map[string]*router.Config) {
 			fmt.Println("InitialRouteInfo added", c)
 			addPortToMonitorList(port)
 			addNameToMonitorList(instanceName)
+
+			color.Green("c completed -> ")
+			fmt.Println(c)
 		}
 
 		fmt.Println("routes -> ", c.GetRoutes())

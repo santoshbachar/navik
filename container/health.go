@@ -3,6 +3,7 @@ package container
 import (
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -13,27 +14,54 @@ import (
 )
 
 type ActuatorHealth struct {
-	status     string      `yaml:"status"`
-	components interface{} `yaml:"components"`
+	Status     string      `yaml:"status"`
+	Components interface{} `yaml:"components"`
 }
 
 func IsUp(host string, port int) bool {
+
 	addr := "http://" + host + ":" + strconv.Itoa(port) + "/actuator/health"
+
+	// client := &http.Client{}
+	// req, _ := http.NewRequest("GET", addr, nil)
+
+	// req.Close = true
+	// req.Header.Set("Content-Type", "application/json")
+	// resp, err := client.Do(req)
+
+	// if errors.Is(err, syscall.ECONNREFUSED) || errors.Is(err, syscall.ECONNRESET) {
+	// 	color.Red("🚩 port is connection refused/reset. Shall I panic?")
+	// 	return false
+	// }
+
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// defer resp.Body.Close()
+
 	color.Blue("addr = " + addr)
+
 	resp, err := http.Get(addr)
 
 	fmt.Println("About to check errors")
 	if errors.Is(err, syscall.ECONNREFUSED) || errors.Is(err, syscall.ECONNRESET) {
-		color.Red("port is connection refused/reset. red flag. Shall I panic?")
+		color.Red("🚩 port is connection refused/reset. Shall I panic?")
 		return false
 	}
 
 	// server closes the connection without indicating so
-	resp.Close = true
+	// resp.Close = true
+	color.Cyan("resp.Close")
 
 	if err != nil {
 		color.Red("actuator response error")
-		panic(err)
+		if errors.Is(err, io.EOF) || errors.Is(err, io.ErrUnexpectedEOF) {
+			color.Red("Content-Length is 0. Next time the content shall come")
+			return false
+		} else {
+			fmt.Println("Some other error")
+			panic(err)
+		}
 	}
 
 	defer resp.Body.Close()
@@ -55,7 +83,13 @@ func IsUp(host string, port int) bool {
 	color.Green(string(json))
 
 	ah := unmarshalActuator(json)
-	return ah.status == "UP"
+	fmt.Println(ah)
+	isUp := false
+	if ah.Status == "UP" {
+		isUp = true
+	}
+	color.Cyan("ah.status == UP " + strconv.FormatBool(isUp))
+	return ah.Status == "UP"
 }
 
 func unmarshalActuator(resp []byte) ActuatorHealth {
