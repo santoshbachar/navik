@@ -5,6 +5,8 @@ import (
 	"net"
 	"strconv"
 	"time"
+
+	"github.com/santoshbachar/navik/utility"
 )
 
 type PortManager struct {
@@ -13,9 +15,11 @@ type PortManager struct {
 	current int
 }
 
-func (pm *PortManager) InitializePortManager(min, max int) {
-	pm.min = min
-	pm.max = max
+func (pm *PortManager) InitializePortManager(min, max string) {
+	min_s := utility.GetPortIntFromPortString(min)
+	max_s := utility.GetPortIntFromPortString(max)
+	pm.min = min_s
+	pm.max = max_s
 	pm.current = pm.min
 }
 

@@ -112,6 +112,9 @@ func spinContainers(routerMap *map[string]*router.Config) {
 				continue
 			}
 			finalArgs := container.PrepareStart(constants.GetCommonArgs(), cArgs)
+			// finalArgs = finalArgs + " -p " + strconv.Itoa(port) + ":" + strconv.Itoa(c.GetPortOut())
+			color.Red("finalArgs = " + finalArgs)
+
 			id, ok := container.Start(image, instanceName, finalArgs)
 
 			if !ok {
@@ -122,11 +125,13 @@ func spinContainers(routerMap *map[string]*router.Config) {
 
 			counter := 0
 			up := false
-			for !up {
-				counter++
-				color.Yellow("waiting for " + image + " #" + strconv.Itoa(i) + " to start")
-				up = container.IsUp(c.GetHost(), port)
-				time.Sleep(time.Second * 5)
+			if image == "goals" || image == "api-gateway" || image == "user-service" || image == "role-groups" {
+				for !up {
+					counter++
+					color.Yellow("waiting for " + image + " #" + strconv.Itoa(i) + " to start")
+					up = container.IsUp(c.GetHost(), port)
+					time.Sleep(time.Second * 5)
+				}
 			}
 
 			c.AddInitialRouteInfo(i, port, id)

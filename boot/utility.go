@@ -6,11 +6,14 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/santoshbachar/navik/utility"
 )
 
-func isPortAvailable(port int) bool {
+func isPortAvailable(portWithProtocol string) bool {
+	pNum, protocol := utility.GetNumberAndProtocolFromPort(portWithProtocol)
 	timeout := time.Second
-	conn, err := net.DialTimeout("tcp", net.JoinHostPort("localhost", strconv.Itoa(port)), timeout)
+	conn, err := net.DialTimeout(protocol, net.JoinHostPort("localhost", utility.GetPortStringFromPortInt(pNum)), timeout)
 	if err != nil {
 		return true
 	}
@@ -20,10 +23,18 @@ func isPortAvailable(port int) bool {
 	return false
 }
 
-func getAvailablePortCount(start_port, end_port int) int {
+func getAvailablePortCount(start_port, end_port string) int {
+
+	start_port_i := utility.GetPortIntFromPortString(start_port)
+	end_port_i := utility.GetPortIntFromPortString(end_port)
+
 	total := 0
-	for port := start_port; port <= end_port; port++ {
-		if isPortAvailable(port) {
+
+	for port := start_port_i; port <= end_port_i; port++ {
+
+		port_s_wp := utility.GetPortStringFromPortInt(port) + "/tcp"
+
+		if isPortAvailable(port_s_wp) {
 			total++
 		}
 	}

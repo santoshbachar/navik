@@ -12,6 +12,7 @@ import (
 	"sync"
 
 	"github.com/santoshbachar/navik/container"
+	"github.com/santoshbachar/navik/utility"
 )
 
 type cPair struct {
@@ -20,8 +21,10 @@ type cPair struct {
 }
 
 type Config struct {
-	portOut int // main port described in -p
-	portIn  int // not to be taken into consideration in v1
+	portOut         int // main port described in -p
+	portOutProtocol string
+	portIn          int // not to be taken into consideration in v1
+	portInProtocol  string
 	// now, this has to be considered as hostport:port
 	maintain      int
 	containerArgs []string
@@ -60,6 +63,21 @@ func (c *Config) GetPortOut() int {
 	return c.portOut
 }
 
+func (c *Config) GetPortOutProtocol() string {
+	return c.portOutProtocol
+}
+
+func (c *Config) GetPortOutWithProtocol() string {
+	port_s := strconv.Itoa(c.GetPortOut())
+	port_protocol := c.GetPortOutProtocol()
+
+	if port_protocol == "" {
+		return port_s
+	}
+
+	return port_s + "/" + port_protocol
+}
+
 func (c *Config) GetHost() string {
 	return "localhost"
 }
@@ -88,8 +106,12 @@ func (c *Config) getPointerToContainer(index int) *container.Info {
 	return c.routes[index].ptr
 }
 
-func GetInitialConfig(p1, p2, maintain int, args []string) *Config {
-	return &Config{p1, p2, maintain, args, nil, sync.Mutex{}, make(chan os.Signal, 1)}
+func GetInitialConfig(p1, p2 string, maintain int, args []string) *Config {
+
+	p1_i, p1p := utility.GetNumberAndProtocolFromPort(p1)
+	p2_i, p2p := utility.GetNumberAndProtocolFromPort(p2)
+
+	return &Config{p1_i, p1p, p2_i, p2p, maintain, args, nil, sync.Mutex{}, make(chan os.Signal, 1)}
 }
 
 func (c *Config) ModifyRoutes(newRoutes []string) {
@@ -112,8 +134,10 @@ func getNextCounter(max int) int {
 	return counterToReturn
 }
 
-func getNewDirector(routes *[]cPair) *httputil.ReverseProxy {
+func getNewDirector(routes *[]cPair, headers http.Header) *httputil.ReverseProxy {
 	director := func(req *http.Request) {
+		req.Header = headers
+
 		req.Header.Add("X-Forwarded-Host", req.Host)
 
 		req.URL.Scheme = "http"
@@ -125,6 +149,7 @@ func getNewDirector(routes *[]cPair) *httputil.ReverseProxy {
 		fmt.Println("Inside director function")
 		fmt.Println("c=", c)
 		fmt.Println("req.URL.Host=", req.URL.Host)
+		fmt.Println("req.header = ", req.Header)
 	}
 	fmt.Println("Director is set")
 
@@ -149,7 +174,7 @@ func (conf *Config) Spin(i int, serverMux *http.ServeMux) {
 	(*serverMux).HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
 		//proxy := getNewDirector(director)
 		conf.mu.Lock()
-		proxy := getNewDirector(&conf.routes)
+		proxy := getNewDirector(&conf.routes, request.Header)
 		fmt.Println("/ proxy", proxy)
 		fmt.Println("request is ", request)
 		conf.mu.Unlock()
@@ -157,7 +182,7 @@ func (conf *Config) Spin(i int, serverMux *http.ServeMux) {
 		proxy.ServeHTTP(writer, request)
 	})
 
-	srv := &http.Server{Addr: ":" + strconv.Itoa(conf.portOut), Handler: serverMux}
+	srv := &http.Server{Addr: ":" + conf.GetPortOutWithProtocol(), Handler: serverMux}
 
 	go func() {
 		<-conf.stopSignal

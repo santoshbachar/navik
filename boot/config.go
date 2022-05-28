@@ -45,7 +45,7 @@ func PreFlightCheck(config *Config, routerMap *map[string]*router.Config) bool {
 		fmt.Println(p1, p2)
 		portok := isPortAvailable(p1)
 		if !portok {
-			fmt.Println("your image with port `" + strconv.Itoa(p1) + "` is not available")
+			fmt.Println("your image with port `" + p1 + "` is not available")
 			return false
 		}
 		(*routerMap)[container.Image] = router.GetInitialConfig(p1, p2, container.State.Min, container.Args)
@@ -174,15 +174,15 @@ func Bootstrap(config *Config, routeMap *map[string]*router.Config) {
 //
 //}
 
-func getPortsFromArgsIfArgsWereOne(args string) (bool, int, int) {
+func getPortsFromArgsIfArgsWereOne(args string) (bool, string, string) {
 	pos := strings.Index(args, "-p ")
 	if pos == -1 {
-		return false, 0, 0
+		return false, "", ""
 	}
 	newString := args[pos+3:]
 	newPos := strings.Index(newString, " ")
 	if pos == -1 {
-		return false, 0, 0
+		return false, "", ""
 	}
 	found := getHostPort(args[pos+3 : newPos])
 	one, two, ok := getColonItems(found)
@@ -193,7 +193,7 @@ func getPortsFromArgsIfArgsWereOne(args string) (bool, int, int) {
 	return true, one, two
 }
 
-func getPortsFromArgs(args *[]string) (bool, int, int) {
+func getPortsFromArgs(args *[]string) (bool, string, string) {
 	for _, v := range *args {
 		firstTwo := v[:2]
 		var ports string
@@ -208,7 +208,7 @@ func getPortsFromArgs(args *[]string) (bool, int, int) {
 			return true, p1, p2
 		}
 	}
-	return false, 0, 0
+	return false, "", ""
 }
 
 func getHostPort(ports string) string {
@@ -219,19 +219,14 @@ func getHostPort(ports string) string {
 	return ports[0:pos]
 }
 
-func getColonItems(raw string) (int, int, bool) {
+func getColonItems(raw string) (string, string, bool) {
 	pos := strings.Index(raw, ":")
 	if pos == -1 {
-		return 0, 0, false
+		return "0", "0", false
 	}
-	f, err := strconv.Atoi(raw[0:pos])
-	if err != nil {
-		panic("first port format error")
-	}
-	s, err := strconv.Atoi(raw[pos+1 : len(raw)])
-	if err != nil {
-		panic("second Port format error")
-	}
+	f := raw[0:pos]
+	s := raw[pos+1 : len(raw)]
+
 	return f, s, true
 
 }
